@@ -2,7 +2,9 @@
    MAR O PALE
    NIKAN STUDIO
    4 PLAYER SNAKE & LADDER
+   WITH GAME SOUNDS
 ========================================================= */
+
 
 /* =========================================================
    ELEMENTS
@@ -16,31 +18,275 @@ const gameMessage = document.getElementById("gameMessage");
 
 
 /* =========================================================
+   AUDIO SYSTEM
+========================================================= */
+
+let audioContext = null;
+let audioStarted = false;
+
+
+/* شروع سیستم صدا */
+
+function startAudio() {
+
+    if (!audioContext) {
+
+        audioContext = new (
+            window.AudioContext ||
+            window.webkitAudioContext
+        )();
+
+    }
+
+    if (audioContext.state === "suspended") {
+        audioContext.resume();
+    }
+
+    audioStarted = true;
+}
+
+
+/* صدای پایه */
+
+function playTone(
+    frequency,
+    duration = 0.12,
+    type = "sine",
+    volume = 0.05
+) {
+
+    if (!audioStarted || !audioContext) return;
+
+    const oscillator =
+        audioContext.createOscillator();
+
+    const gain =
+        audioContext.createGain();
+
+    oscillator.type = type;
+
+    oscillator.frequency.setValueAtTime(
+        frequency,
+        audioContext.currentTime
+    );
+
+    gain.gain.setValueAtTime(
+        volume,
+        audioContext.currentTime
+    );
+
+    gain.gain.exponentialRampToValueAtTime(
+        0.001,
+        audioContext.currentTime + duration
+    );
+
+    oscillator.connect(gain);
+    gain.connect(audioContext.destination);
+
+    oscillator.start();
+
+    oscillator.stop(
+        audioContext.currentTime + duration
+    );
+}
+
+
+/* =========================================================
+   DICE SOUND
+========================================================= */
+
+function playDiceSound() {
+
+    if (!audioStarted) return;
+
+    playTone(
+        350,
+        0.07,
+        "square",
+        0.035
+    );
+
+    setTimeout(() => {
+
+        playTone(
+            480,
+            0.07,
+            "square",
+            0.035
+        );
+
+    }, 80);
+
+    setTimeout(() => {
+
+        playTone(
+            620,
+            0.09,
+            "square",
+            0.04
+        );
+
+    }, 160);
+}
+
+
+/* =========================================================
+   PIECE MOVE SOUND
+========================================================= */
+
+function playMoveSound() {
+
+    playTone(
+        330,
+        0.07,
+        "triangle",
+        0.025
+    );
+}
+
+
+/* =========================================================
+   SNAKE SOUND
+========================================================= */
+
+function playSnakeSound() {
+
+    if (!audioStarted) return;
+
+    playTone(
+        450,
+        0.12,
+        "sawtooth",
+        0.035
+    );
+
+    setTimeout(() => {
+
+        playTone(
+            330,
+            0.15,
+            "sawtooth",
+            0.035
+        );
+
+    }, 120);
+
+    setTimeout(() => {
+
+        playTone(
+            220,
+            0.25,
+            "sawtooth",
+            0.04
+        );
+
+    }, 250);
+}
+
+
+/* =========================================================
+   LADDER SOUND
+========================================================= */
+
+function playLadderSound() {
+
+    if (!audioStarted) return;
+
+    playTone(
+        400,
+        0.1,
+        "triangle",
+        0.035
+    );
+
+    setTimeout(() => {
+
+        playTone(
+            520,
+            0.1,
+            "triangle",
+            0.035
+        );
+
+    }, 100);
+
+    setTimeout(() => {
+
+        playTone(
+            650,
+            0.13,
+            "triangle",
+            0.04
+        );
+
+    }, 200);
+}
+
+
+/* =========================================================
+   WINNER SOUND
+========================================================= */
+
+function playWinnerSound() {
+
+    if (!audioStarted) return;
+
+    const notes = [
+        523,
+        659,
+        784,
+        1046
+    ];
+
+    notes.forEach((note, index) => {
+
+        setTimeout(() => {
+
+            playTone(
+                note,
+                0.22,
+                "triangle",
+                0.06
+            );
+
+        }, index * 150);
+
+    });
+}
+
+
+/* =========================================================
    PLAYERS
 ========================================================= */
 
 const players = [
+
     {
         name: "قرمز",
         color: "red",
         position: 1
     },
+
     {
         name: "آبی",
         color: "blue",
         position: 1
     },
+
     {
         name: "سبز",
         color: "green",
         position: 1
     },
+
     {
         name: "زرد",
         color: "yellow",
         position: 1
     }
+
 ];
+
 
 let currentPlayerIndex = 0;
 let gameStarted = false;
@@ -49,11 +295,10 @@ let isRolling = false;
 
 /* =========================================================
    SNAKES
-   key = شروع مار
-   value = انتهای مار
 ========================================================= */
 
 const snakes = {
+
     98: 78,
     95: 75,
     92: 72,
@@ -62,16 +307,16 @@ const snakes = {
     48: 30,
     39: 20,
     27: 7
+
 };
 
 
 /* =========================================================
    LADDERS
-   key = پایین پله
-   value = بالای پله
 ========================================================= */
 
 const ladders = {
+
     4: 25,
     9: 31,
     17: 45,
@@ -80,6 +325,7 @@ const ladders = {
     40: 60,
     51: 72,
     63: 81
+
 };
 
 
@@ -91,136 +337,206 @@ function createBoard() {
 
     board.innerHTML = "";
 
-    /*
-       مار و پله معمولاً به شکل زیگزاگی شماره‌گذاری می‌شود.
-       ردیف اول: 1 تا 10
-       ردیف دوم: 20 تا 11
-       ردیف سوم: 21 تا 30
-       ...
-    */
-
-    for (let row = 9; row >= 0; row--) {
+    for (
+        let row = 9;
+        row >= 0;
+        row--
+    ) {
 
         let numbers = [];
 
-        const start = row * 10 + 1;
-        const end = row * 10 + 10;
+        const start =
+            row * 10 + 1;
 
-        for (let number = start; number <= end; number++) {
+        const end =
+            row * 10 + 10;
+
+
+        for (
+            let number = start;
+            number <= end;
+            number++
+        ) {
+
             numbers.push(number);
+
         }
 
-        /*
-           ردیف‌های یکی در میان برعکس می‌شوند.
-        */
 
         if ((9 - row) % 2 === 1) {
+
             numbers.reverse();
+
         }
+
 
         numbers.forEach(number => {
 
-            const cell = document.createElement("div");
+            const cell =
+                document.createElement("div");
 
             cell.classList.add("cell");
-            cell.dataset.number = number;
+
+            cell.dataset.number =
+                number;
+
 
             /* شماره خانه */
 
-            const numberElement = document.createElement("span");
+            const numberElement =
+                document.createElement("span");
 
-            numberElement.classList.add("cell-number");
-            numberElement.textContent = number;
+            numberElement.classList.add(
+                "cell-number"
+            );
 
-            cell.appendChild(numberElement);
+            numberElement.textContent =
+                number;
+
+            cell.appendChild(
+                numberElement
+            );
+
 
             /* خانه شروع */
 
             if (number === 1) {
-                cell.classList.add("start");
+
+                cell.classList.add(
+                    "start"
+                );
+
             }
+
 
             /* خانه پایان */
 
             if (number === 100) {
-                cell.classList.add("finish");
+
+                cell.classList.add(
+                    "finish"
+                );
+
             }
+
 
             /* مار */
 
             if (snakes[number]) {
 
-                const snake = document.createElement("span");
+                const snake =
+                    document.createElement("span");
 
-                snake.classList.add("snake");
-                snake.textContent = "🐍";
+                snake.classList.add(
+                    "snake"
+                );
 
-                cell.appendChild(snake);
+                snake.textContent =
+                    "🐍";
+
+                cell.appendChild(
+                    snake
+                );
+
             }
+
 
             /* پله */
 
             if (ladders[number]) {
 
-                const ladder = document.createElement("span");
+                const ladder =
+                    document.createElement("span");
 
-                ladder.classList.add("ladder");
-                ladder.textContent = "🪜";
+                ladder.classList.add(
+                    "ladder"
+                );
 
-                cell.appendChild(ladder);
+                ladder.textContent =
+                    "🪜";
+
+                cell.appendChild(
+                    ladder
+                );
+
             }
+
 
             /* محل مهره‌ها */
 
-            const pieceContainer = document.createElement("div");
+            const pieceContainer =
+                document.createElement("div");
 
-            pieceContainer.classList.add("piece-container");
+            pieceContainer.classList.add(
+                "piece-container"
+            );
 
-            pieceContainer.id = `pieces-${number}`;
+            pieceContainer.id =
+                `pieces-${number}`;
 
-            cell.appendChild(pieceContainer);
+            cell.appendChild(
+                pieceContainer
+            );
+
 
             board.appendChild(cell);
+
         });
+
     }
 
+
     updatePieces();
+
 }
 
 
 /* =========================================================
-   CREATE PIECES
+   UPDATE PIECES
 ========================================================= */
 
 function updatePieces() {
 
-    /* پاک کردن مهره‌های قبلی */
+    document
+        .querySelectorAll(".piece-container")
+        .forEach(container => {
 
-    document.querySelectorAll(".piece-container").forEach(container => {
-        container.innerHTML = "";
-    });
+            container.innerHTML = "";
 
-    /* قرار دادن دوباره مهره‌ها */
+        });
+
 
     players.forEach(player => {
 
-        const container = document.getElementById(
-            `pieces-${player.position}`
-        );
+        const container =
+            document.getElementById(
+                `pieces-${player.position}`
+            );
+
 
         if (!container) return;
 
-        const piece = document.createElement("div");
+
+        const piece =
+            document.createElement("div");
+
 
         piece.classList.add(
             "piece",
             player.color
         );
 
-        piece.title = player.name;
 
-        container.appendChild(piece);
+        piece.title =
+            player.name;
+
+
+        container.appendChild(
+            piece
+        );
+
     });
+
 }
 
 
@@ -230,39 +546,58 @@ function updatePieces() {
 
 function updateCurrentPlayer() {
 
-    const player = players[currentPlayerIndex];
+    const player =
+        players[currentPlayerIndex];
 
-    currentPlayerText.textContent = player.name;
 
-    /*
-       رنگ متن نوبت
-    */
+    currentPlayerText.textContent =
+        player.name;
+
 
     const colors = {
+
         red: "#ef4444",
         blue: "#3b82f6",
         green: "#22c55e",
         yellow: "#ca8a04"
+
     };
 
+
     currentPlayerText.style.color =
-        colors[player.color] || "#4f46e5";
+        colors[player.color] ||
+        "#4f46e5";
 
-    /*
-       نمایش بازیکن فعال
-    */
 
-    document.querySelectorAll(".player").forEach(element => {
-        element.classList.remove("active");
-    });
+    document
+        .querySelectorAll(".player")
+        .forEach(element => {
+
+            element.classList.remove(
+                "active"
+            );
+
+        });
+
 
     const playerElements =
-        document.querySelectorAll(".player");
+        document.querySelectorAll(
+            ".player"
+        );
 
-    if (playerElements[currentPlayerIndex]) {
+
+    if (
         playerElements[currentPlayerIndex]
-            .classList.add("active");
+    ) {
+
+        playerElements[
+            currentPlayerIndex
+        ].classList.add(
+            "active"
+        );
+
     }
+
 }
 
 
@@ -274,66 +609,121 @@ async function rollDice() {
 
     if (isRolling) return;
 
-    isRolling = true;
-    rollDiceButton.disabled = true;
 
-    const player = players[currentPlayerIndex];
+    /*
+       فعال کردن صدا
+    */
+
+    startAudio();
+
+
+    isRolling = true;
+
+    rollDiceButton.disabled =
+        true;
+
+
+    const player =
+        players[currentPlayerIndex];
+
 
     gameStarted = true;
+
 
     gameMessage.textContent =
         `${player.name} در حال انداختن تاس است...`;
 
+
     /*
-       انیمیشن ساده تاس
+       صدای تاس
     */
 
-    for (let i = 0; i < 8; i++) {
+    playDiceSound();
+
+
+    /*
+       انیمیشن تاس
+    */
+
+    for (
+        let i = 0;
+        i < 8;
+        i++
+    ) {
 
         const randomNumber =
-            Math.floor(Math.random() * 6) + 1;
+            Math.floor(
+                Math.random() * 6
+            ) + 1;
 
-        diceResultText.textContent = randomNumber;
+
+        diceResultText.textContent =
+            randomNumber;
+
 
         await wait(80);
+
     }
+
 
     /*
        عدد واقعی تاس
     */
 
     const dice =
-        Math.floor(Math.random() * 6) + 1;
+        Math.floor(
+            Math.random() * 6
+        ) + 1;
 
-    diceResultText.textContent = dice;
+
+    diceResultText.textContent =
+        dice;
+
 
     gameMessage.textContent =
         `${player.name} عدد ${dice} آورد!`;
 
-    await movePlayer(player, dice);
+
+    await movePlayer(
+        player,
+        dice
+    );
+
 
     isRolling = false;
 
+
     /*
        اگر برنده نشده باشد
-       نوبت بازیکن بعدی
     */
 
     if (!player.winner) {
 
         currentPlayerIndex++;
 
-        if (currentPlayerIndex >= players.length) {
+
+        if (
+            currentPlayerIndex >=
+            players.length
+        ) {
+
             currentPlayerIndex = 0;
+
         }
+
 
         updateCurrentPlayer();
 
-        rollDiceButton.disabled = false;
+
+        rollDiceButton.disabled =
+            false;
+
 
         gameMessage.textContent +=
             ` حالا نوبت ${players[currentPlayerIndex].name} است.`;
+
     }
+
 }
 
 
@@ -341,98 +731,162 @@ async function rollDice() {
    MOVE PLAYER
 ========================================================= */
 
-async function movePlayer(player, dice) {
+async function movePlayer(
+    player,
+    dice
+) {
 
     /*
-       اگر از 100 عبور کند، حرکت نمی‌کند.
+       بررسی عبور از 100
     */
 
-    if (player.position + dice > 100) {
+    if (
+        player.position + dice >
+        100
+    ) {
 
         gameMessage.textContent =
             `${player.name} نمی‌تواند حرکت کند؛ عدد تاس زیاد است.`;
 
+
         await wait(700);
 
         return;
+
     }
+
 
     /*
        حرکت خانه به خانه
     */
 
-    for (let i = 0; i < dice; i++) {
+    for (
+        let i = 0;
+        i < dice;
+        i++
+    ) {
 
         player.position++;
 
+
         updatePieces();
 
+
+        playMoveSound();
+
+
         await wait(250);
+
     }
+
 
     /*
        بررسی مار
     */
 
-    if (snakes[player.position]) {
+    if (
+        snakes[player.position]
+    ) {
 
-        const oldPosition = player.position;
+        const oldPosition =
+            player.position;
+
 
         gameMessage.textContent =
             `${player.name} روی مار افتاد! 🐍`;
 
+
+        playSnakeSound();
+
+
         await wait(800);
 
-        player.position = snakes[player.position];
+
+        player.position =
+            snakes[player.position];
+
 
         updatePieces();
+
 
         gameMessage.textContent =
             `${player.name} از ${oldPosition} به ${player.position} برگشت. 🐍`;
 
+
         await wait(700);
+
     }
+
 
     /*
        بررسی پله
     */
 
-    if (ladders[player.position]) {
+    if (
+        ladders[player.position]
+    ) {
 
-        const oldPosition = player.position;
+        const oldPosition =
+            player.position;
+
 
         gameMessage.textContent =
             `${player.name} به پله رسید! 🪜`;
 
+
+        playLadderSound();
+
+
         await wait(800);
 
-        player.position = ladders[player.position];
+
+        player.position =
+            ladders[player.position];
+
 
         updatePieces();
+
 
         gameMessage.textContent =
             `${player.name} از ${oldPosition} به ${player.position} رفت. 🪜`;
 
+
         await wait(700);
+
     }
+
 
     /*
        بررسی برنده
     */
 
-    if (player.position === 100) {
+    if (
+        player.position === 100
+    ) {
 
         player.winner = true;
+
 
         gameMessage.textContent =
             `🎉 ${player.name} برنده بازی شد! 🎉`;
 
-        rollDiceButton.disabled = true;
 
-        showWinnerEffect(player);
+        playWinnerSound();
+
+
+        rollDiceButton.disabled =
+            true;
+
+
+        showWinnerEffect(
+            player
+        );
+
 
         return;
+
     }
+
 }
 
 
@@ -443,20 +897,26 @@ async function movePlayer(player, dice) {
 function showWinnerEffect(player) {
 
     const colors = {
+
         red: "#ef4444",
         blue: "#3b82f6",
         green: "#22c55e",
         yellow: "#facc15"
+
     };
+
 
     board.style.boxShadow =
         `0 0 30px ${colors[player.color]}`;
 
+
     setTimeout(() => {
 
-        board.style.boxShadow = "none";
+        board.style.boxShadow =
+            "none";
 
     }, 2000);
+
 }
 
 
@@ -466,9 +926,17 @@ function showWinnerEffect(player) {
 
 function wait(milliseconds) {
 
-    return new Promise(resolve => {
-        setTimeout(resolve, milliseconds);
-    });
+    return new Promise(
+        resolve => {
+
+            setTimeout(
+                resolve,
+                milliseconds
+            );
+
+        }
+    );
+
 }
 
 
@@ -481,25 +949,38 @@ function resetGame() {
     players.forEach(player => {
 
         player.position = 1;
+
         player.winner = false;
 
     });
 
+
     currentPlayerIndex = 0;
 
-    diceResultText.textContent = "-";
+
+    diceResultText.textContent =
+        "-";
+
 
     gameMessage.textContent =
         "آماده‌ای؟ بازی را شروع کن!";
 
-    board.style.boxShadow = "none";
 
-    rollDiceButton.disabled = false;
+    board.style.boxShadow =
+        "none";
+
+
+    rollDiceButton.disabled =
+        false;
+
 
     isRolling = false;
 
+
     updatePieces();
+
     updateCurrentPlayer();
+
 }
 
 
