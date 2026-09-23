@@ -1,0 +1,431 @@
+/* =========================================
+   MAR O PALE - STYLE
+   NIKAN STUDIO
+========================================= */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Tahoma, Arial, sans-serif;
+    background: linear-gradient(135deg, #eef2ff, #f8fafc);
+    color: #222;
+    min-height: 100vh;
+}
+
+/* =========================================
+   HEADER
+========================================= */
+
+.header {
+    text-align: center;
+    padding: 25px 15px 20px;
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    color: white;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+.header h1 {
+    font-size: 30px;
+    margin-bottom: 8px;
+}
+
+.header p {
+    font-size: 15px;
+    opacity: 0.9;
+}
+
+/* =========================================
+   CONTAINER
+========================================= */
+
+.container {
+    width: 94%;
+    max-width: 850px;
+    margin: 25px auto 40px;
+}
+
+/* =========================================
+   PLAYERS
+========================================= */
+
+.players {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.player {
+    background: white;
+    border-radius: 14px;
+    padding: 12px 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    font-size: 14px;
+    font-weight: bold;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+    transition: 0.2s;
+}
+
+.player-color {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.red .player-color {
+    background: #ef4444;
+}
+
+.blue .player-color {
+    background: #3b82f6;
+}
+
+.green .player-color {
+    background: #22c55e;
+}
+
+.yellow .player-color {
+    background: #facc15;
+}
+
+.player.active {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 18px rgba(0, 0, 0, 0.18);
+}
+
+/* =========================================
+   GAME SECTION
+========================================= */
+
+.game-section {
+    background: white;
+    border-radius: 22px;
+    padding: 18px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.09);
+}
+
+/* =========================================
+   GAME INFO
+========================================= */
+
+.game-info {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 18px;
+}
+
+.turn-box,
+.dice-result {
+    flex: 1;
+    background: #f8fafc;
+    border-radius: 13px;
+    padding: 12px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.turn-box strong,
+.dice-result strong {
+    color: #4f46e5;
+    margin-right: 5px;
+}
+
+/* =========================================
+   BOARD
+========================================= */
+
+.board {
+    width: 100%;
+    max-width: 650px;
+    aspect-ratio: 1 / 1;
+    margin: auto;
+
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    grid-template-rows: repeat(10, 1fr);
+
+    border: 4px solid #222;
+    border-radius: 8px;
+    overflow: hidden;
+
+    background: #fff;
+}
+
+/* =========================================
+   BOARD CELLS
+========================================= */
+
+.cell {
+    position: relative;
+    border: 1px solid rgba(0, 0, 0, 0.18);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: clamp(9px, 2vw, 16px);
+    font-weight: bold;
+}
+
+/* رنگ خانه‌ها */
+
+.cell:nth-child(odd) {
+    background: #fef3c7;
+}
+
+.cell:nth-child(even) {
+    background: #dbeafe;
+}
+
+/* =========================================
+   START / FINISH
+========================================= */
+
+.cell.start {
+    background: #bbf7d0 !important;
+}
+
+.cell.finish {
+    background: #fecaca !important;
+}
+
+/* =========================================
+   NUMBER
+========================================= */
+
+.cell-number {
+    position: absolute;
+    top: 3px;
+    right: 4px;
+    font-size: clamp(7px, 1.5vw, 12px);
+    opacity: 0.65;
+}
+
+/* =========================================
+   SNAKES
+========================================= */
+
+.snake {
+    font-size: clamp(18px, 5vw, 38px);
+    position: absolute;
+    z-index: 2;
+}
+
+/* =========================================
+   LADDERS
+========================================= */
+
+.ladder {
+    font-size: clamp(18px, 5vw, 38px);
+    position: absolute;
+    z-index: 2;
+}
+
+/* =========================================
+   PIECES
+========================================= */
+
+.piece-container {
+    position: absolute;
+
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 2px;
+
+    flex-wrap: wrap;
+
+    padding: 4px;
+}
+
+.piece {
+    width: clamp(12px, 4vw, 25px);
+    height: clamp(12px, 4vw, 25px);
+
+    border-radius: 50%;
+
+    border: 2px solid white;
+
+    box-shadow:
+        0 2px 5px rgba(0, 0, 0, 0.35);
+
+    z-index: 5;
+}
+
+/* رنگ مهره‌ها */
+
+.piece.red {
+    background: #ef4444;
+}
+
+.piece.blue {
+    background: #3b82f6;
+}
+
+.piece.green {
+    background: #22c55e;
+}
+
+.piece.yellow {
+    background: #facc15;
+}
+
+/* =========================================
+   CONTROLS
+========================================= */
+
+.controls {
+    text-align: center;
+    margin-top: 20px;
+}
+
+#rollDice {
+    border: none;
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    color: white;
+
+    font-family: inherit;
+    font-size: 17px;
+    font-weight: bold;
+
+    padding: 14px 30px;
+
+    border-radius: 14px;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 5px 15px rgba(79, 70, 229, 0.3);
+
+    transition: 0.2s;
+}
+
+#rollDice:hover {
+    transform: translateY(-2px);
+}
+
+#rollDice:active {
+    transform: scale(0.96);
+}
+
+#rollDice:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* =========================================
+   MESSAGE
+========================================= */
+
+.message-box {
+    margin-top: 20px;
+
+    background: white;
+
+    border-radius: 18px;
+
+    padding: 18px;
+
+    text-align: center;
+
+    box-shadow:
+        0 4px 15px rgba(0, 0, 0, 0.07);
+}
+
+.message-box h2 {
+    font-size: 17px;
+    color: #444;
+}
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 600px) {
+
+    .header h1 {
+        font-size: 25px;
+    }
+
+    .container {
+        width: 96%;
+        margin-top: 15px;
+    }
+
+    .game-section {
+        padding: 10px;
+        border-radius: 16px;
+    }
+
+    .players {
+        gap: 6px;
+    }
+
+    .player {
+        padding: 10px 4px;
+        font-size: 12px;
+        border-radius: 10px;
+    }
+
+    .player-color {
+        width: 12px;
+        height: 12px;
+    }
+
+    .game-info {
+        gap: 6px;
+    }
+
+    .turn-box,
+    .dice-result {
+        padding: 10px 5px;
+        font-size: 12px;
+    }
+
+    #rollDice {
+        width: 100%;
+        font-size: 16px;
+        padding: 13px;
+    }
+
+    .message-box {
+        padding: 14px;
+    }
+
+    .message-box h2 {
+        font-size: 14px;
+    }
+}
+
+/* =========================================
+   VERY SMALL SCREENS
+========================================= */
+
+@media (max-width: 360px) {
+
+    .header h1 {
+        font-size: 22px;
+    }
+
+    .player {
+        font-size: 10px;
+    }
+
+    .cell-number {
+        font-size: 7px;
+    }
+}
