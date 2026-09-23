@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>مار و پله | بازی چهار نفره</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- =========================
+         HEADER
+    ========================== -->
+
+    <header class="header">
+        <h1>🐍 مار و پله 🪜</h1>
+        <p>بازی چهار نفره</p>
+    </header>
+
+
+    <!-- =========================
+         MAIN
+    ========================== -->
+
+    <main class="container">
+
+        <!-- بازیکنان -->
+
+        <section class="players">
+
+            <div class="player red">
+                <span class="player-color"></span>
+                <span>قرمز</span>
+            </div>
+
+            <div class="player blue">
+                <span class="player-color"></span>
+                <span>آبی</span>
+            </div>
+
+            <div class="player green">
+                <span class="player-color"></span>
+                <span>سبز</span>
+            </div>
+
+            <div class="player yellow">
+                <span class="player-color"></span>
+                <span>زرد</span>
+            </div>
+
+        </section>
+
+
+        <!-- صفحه بازی -->
+
+        <section class="game-section">
+
+            <div class="game-info">
+
+                <div class="turn-box">
+                    نوبت:
+                    <strong id="currentPlayer">
+                        قرمز
+                    </strong>
+                </div>
+
+                <div class="dice-result">
+                    تاس:
+                    <strong id="diceResult">
+                        -
+                    </strong>
+                </div>
+
+            </div>
+
+
+            <!-- صفحه مار و پله -->
+
+            <div id="board" class="board">
+
+                <!-- خانه‌ها بعداً با JavaScript ساخته می‌شوند -->
+
+            </div>
+
+
+            <!-- کنترل تاس -->
+
+            <div class="controls">
+
+                <button id="rollDice">
+                    🎲 انداختن تاس
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- پیام بازی -->
+
+        <section class="message-box">
+
+            <h2 id="gameMessage">
+                آماده‌ای؟ بازی را شروع کن!
+            </h2>
+
+        </section>
+
+    </main>
+
+
+    <!-- =========================
+         JAVASCRIPT
+    ========================== -->
+
+    <script src="script.js"></script>
+
+</body>
+</html>
