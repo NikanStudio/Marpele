@@ -14,9 +14,21 @@
     <meta name="theme-color"
           content="#6d28d9">
 
+    <meta name="mobile-web-app-capable"
+          content="yes">
+
+    <meta name="apple-mobile-web-app-capable"
+          content="yes">
+
     <title>مار و پله | بازی چهار نفره</title>
 
-    <link rel="stylesheet" href="style.css">
+    <!-- PWA Manifest -->
+    <link rel="manifest"
+          href="/Marpele/manifest.json">
+
+    <!-- CSS -->
+    <link rel="stylesheet"
+          href="style.css">
 
 </head>
 
@@ -28,7 +40,8 @@
          START SCREEN
     ========================== -->
 
-    <div id="startScreen" class="start-screen">
+    <div id="startScreen"
+         class="start-screen">
 
         <div class="start-card">
 
@@ -168,7 +181,8 @@
 
             <!-- BOARD -->
 
-            <div id="board" class="board">
+            <div id="board"
+                 class="board">
 
             </div>
 
@@ -181,10 +195,9 @@
                     🎲 انداختن تاس
                 </button>
 
-                <button
-                    id="soundButton"
-                    class="sound-button"
-                    type="button">
+                <button id="soundButton"
+                        class="sound-button"
+                        type="button">
 
                     🔊 صدا روشن
 
@@ -215,20 +228,57 @@
     </main>
 
 
+    <!-- =========================
+         GAME JAVASCRIPT
+    ========================== -->
+
     <script src="script.js"></script>
 
+
+    <!-- =========================
+         SERVICE WORKER
+    ========================== -->
+
+    <script>
+
+        if ("serviceWorker" in navigator) {
+
+            window.addEventListener(
+                "load",
+                () => {
+
+                    navigator.serviceWorker
+                        .register(
+                            "/Marpele/service-worker.js"
+                        )
+                        .then(
+                            () => {
+
+                                console.log(
+                                    "Marpele Service Worker registered"
+                                );
+
+                            }
+                        )
+                        .catch(
+                            error => {
+
+                                console.error(
+                                    "Service Worker error:",
+                                    error
+                                );
+
+                            }
+                        );
+
+                }
+            );
+
+        }
+
+    </script>
+
+
 </body>
-<script>
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/Marpele/service-worker.js")
-      .then(() => {
-        console.log("Marpele Service Worker registered");
-      })
-      .catch(error => {
-        console.error("Service Worker error:", error);
-      });
-  });
-}
-</script>
+
 </html>
