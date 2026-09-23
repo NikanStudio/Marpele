@@ -218,5 +218,17 @@
     <script src="script.js"></script>
 
 </body>
-
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/Marpele/service-worker.js")
+      .then(() => {
+        console.log("Marpele Service Worker registered");
+      })
+      .catch(error => {
+        console.error("Service Worker error:", error);
+      });
+  });
+}
+</script>
 </html>
