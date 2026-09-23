@@ -2,7 +2,7 @@
    MAR O PALE
    NIKAN STUDIO
    4 PLAYER SNAKE & LADDER
-   WITH GAME SOUNDS
+   SOUND EDITION
 ========================================================= */
 
 
@@ -10,52 +10,98 @@
    ELEMENTS
 ========================================================= */
 
-const board = document.getElementById("board");
-const rollDiceButton = document.getElementById("rollDice");
-const currentPlayerText = document.getElementById("currentPlayer");
-const diceResultText = document.getElementById("diceResult");
-const gameMessage = document.getElementById("gameMessage");
+const board =
+    document.getElementById("board");
+
+const rollDiceButton =
+    document.getElementById("rollDice");
+
+const currentPlayerText =
+    document.getElementById("currentPlayer");
+
+const diceResultText =
+    document.getElementById("diceResult");
+
+const gameMessage =
+    document.getElementById("gameMessage");
+
+const startScreen =
+    document.getElementById("startScreen");
+
+const startGameButton =
+    document.getElementById("startGame");
+
+const soundButton =
+    document.getElementById("soundButton");
 
 
 /* =========================================================
-   AUDIO SYSTEM
+   AUDIO
 ========================================================= */
 
 let audioContext = null;
-let audioStarted = false;
+
+let soundEnabled = true;
 
 
-/* شروع سیستم صدا */
+/*
+   ساخت AudioContext
+*/
 
-function startAudio() {
+function initAudio() {
 
     if (!audioContext) {
 
-        audioContext = new (
+        const AudioContext =
             window.AudioContext ||
-            window.webkitAudioContext
-        )();
+            window.webkitAudioContext;
+
+        if (!AudioContext) {
+
+            console.log(
+                "AudioContext is not supported."
+            );
+
+            return;
+
+        }
+
+        audioContext =
+            new AudioContext();
 
     }
 
-    if (audioContext.state === "suspended") {
+
+    if (
+        audioContext.state ===
+        "suspended"
+    ) {
+
         audioContext.resume();
+
     }
 
-    audioStarted = true;
 }
 
 
-/* صدای پایه */
+/*
+   صدای اصلی
+*/
 
-function playTone(
+function tone(
     frequency,
-    duration = 0.12,
+    duration,
     type = "sine",
-    volume = 0.05
+    volume = 0.06
 ) {
 
-    if (!audioStarted || !audioContext) return;
+    if (
+        !soundEnabled ||
+        !audioContext
+    ) {
+        return;
+    }
+
 
     const oscillator =
         audioContext.createOscillator();
@@ -63,195 +109,268 @@ function playTone(
     const gain =
         audioContext.createGain();
 
-    oscillator.type = type;
+
+    oscillator.type =
+        type;
+
 
     oscillator.frequency.setValueAtTime(
         frequency,
         audioContext.currentTime
     );
 
+
     gain.gain.setValueAtTime(
         volume,
         audioContext.currentTime
     );
 
+
     gain.gain.exponentialRampToValueAtTime(
         0.001,
-        audioContext.currentTime + duration
+        audioContext.currentTime +
+        duration
     );
 
+
     oscillator.connect(gain);
-    gain.connect(audioContext.destination);
+
+    gain.connect(
+        audioContext.destination
+    );
+
 
     oscillator.start();
 
+
     oscillator.stop(
-        audioContext.currentTime + duration
+        audioContext.currentTime +
+        duration
     );
+
 }
 
 
 /* =========================================================
-   DICE SOUND
+   START SOUND
+========================================================= */
+
+function playStartSound() {
+
+    tone(
+        523,
+        0.12,
+        "triangle",
+        0.06
+    );
+
+
+    setTimeout(() => {
+
+        tone(
+            659,
+            0.12,
+            "triangle",
+            0.06
+        );
+
+    }, 120);
+
+
+    setTimeout(() => {
+
+        tone(
+            784,
+            0.2,
+            "triangle",
+            0.07
+        );
+
+    }, 240);
+
+}
+
+
+/* =========================================================
+   DICE
 ========================================================= */
 
 function playDiceSound() {
 
-    if (!audioStarted) return;
-
-    playTone(
-        350,
-        0.07,
+    tone(
+        300,
+        0.06,
         "square",
         0.035
     );
 
+
     setTimeout(() => {
 
-        playTone(
-            480,
-            0.07,
+        tone(
+            420,
+            0.06,
             "square",
             0.035
         );
 
     }, 80);
 
+
     setTimeout(() => {
 
-        playTone(
-            620,
-            0.09,
+        tone(
+            540,
+            0.08,
             "square",
             0.04
         );
 
     }, 160);
+
 }
 
 
 /* =========================================================
-   PIECE MOVE SOUND
+   MOVE
 ========================================================= */
 
 function playMoveSound() {
 
-    playTone(
-        330,
+    tone(
+        360,
         0.07,
         "triangle",
         0.025
     );
+
 }
 
 
 /* =========================================================
-   SNAKE SOUND
+   SNAKE
 ========================================================= */
 
 function playSnakeSound() {
 
-    if (!audioStarted) return;
-
-    playTone(
-        450,
+    tone(
+        500,
         0.12,
         "sawtooth",
-        0.035
+        0.04
     );
+
 
     setTimeout(() => {
 
-        playTone(
-            330,
+        tone(
+            360,
             0.15,
             "sawtooth",
-            0.035
+            0.04
         );
 
     }, 120);
 
+
     setTimeout(() => {
 
-        playTone(
+        tone(
             220,
             0.25,
             "sawtooth",
-            0.04
+            0.045
         );
 
-    }, 250);
+    }, 270);
+
 }
 
 
 /* =========================================================
-   LADDER SOUND
+   LADDER
 ========================================================= */
 
 function playLadderSound() {
 
-    if (!audioStarted) return;
-
-    playTone(
-        400,
+    tone(
+        440,
         0.1,
         "triangle",
-        0.035
+        0.045
     );
+
 
     setTimeout(() => {
 
-        playTone(
-            520,
+        tone(
+            550,
             0.1,
             "triangle",
-            0.035
+            0.045
         );
 
     }, 100);
 
+
     setTimeout(() => {
 
-        playTone(
-            650,
-            0.13,
+        tone(
+            660,
+            0.1,
             "triangle",
-            0.04
+            0.05
         );
 
     }, 200);
+
+
+    setTimeout(() => {
+
+        tone(
+            880,
+            0.16,
+            "triangle",
+            0.055
+        );
+
+    }, 300);
+
 }
 
 
 /* =========================================================
-   WINNER SOUND
+   WINNER
 ========================================================= */
 
 function playWinnerSound() {
-
-    if (!audioStarted) return;
 
     const notes = [
         523,
         659,
         784,
-        1046
+        1046,
+        1318
     ];
 
-    notes.forEach((note, index) => {
 
-        setTimeout(() => {
+    notes.forEach(
+        (note, index) => {
 
-            playTone(
-                note,
-                0.22,
-                "triangle",
-                0.06
-            );
+            setTimeout(() => {
 
-        }, index * 150);
+                tone(
+                    note,
+                    0.22,
+                    "triangle",
+                    0.065
+                );
 
-    });
+            }, index * 140);
+
+        }
+    );
+
 }
 
 
@@ -289,7 +408,9 @@ const players = [
 
 
 let currentPlayerIndex = 0;
+
 let gameStarted = false;
+
 let isRolling = false;
 
 
@@ -337,6 +458,7 @@ function createBoard() {
 
     board.innerHTML = "";
 
+
     for (
         let row = 9;
         row >= 0;
@@ -344,6 +466,7 @@ function createBoard() {
     ) {
 
         let numbers = [];
+
 
         const start =
             row * 10 + 1;
@@ -363,7 +486,9 @@ function createBoard() {
         }
 
 
-        if ((9 - row) % 2 === 1) {
+        if (
+            (9 - row) % 2 === 1
+        ) {
 
             numbers.reverse();
 
@@ -373,32 +498,39 @@ function createBoard() {
         numbers.forEach(number => {
 
             const cell =
-                document.createElement("div");
+                document.createElement(
+                    "div"
+                );
 
-            cell.classList.add("cell");
+
+            cell.classList.add(
+                "cell"
+            );
+
 
             cell.dataset.number =
                 number;
 
 
-            /* شماره خانه */
-
             const numberElement =
-                document.createElement("span");
+                document.createElement(
+                    "span"
+                );
+
 
             numberElement.classList.add(
                 "cell-number"
             );
 
+
             numberElement.textContent =
                 number;
+
 
             cell.appendChild(
                 numberElement
             );
 
-
-            /* خانه شروع */
 
             if (number === 1) {
 
@@ -409,8 +541,6 @@ function createBoard() {
             }
 
 
-            /* خانه پایان */
-
             if (number === 100) {
 
                 cell.classList.add(
@@ -420,19 +550,22 @@ function createBoard() {
             }
 
 
-            /* مار */
-
             if (snakes[number]) {
 
                 const snake =
-                    document.createElement("span");
+                    document.createElement(
+                        "span"
+                    );
+
 
                 snake.classList.add(
                     "snake"
                 );
 
+
                 snake.textContent =
                     "🐍";
+
 
                 cell.appendChild(
                     snake
@@ -441,19 +574,22 @@ function createBoard() {
             }
 
 
-            /* پله */
-
             if (ladders[number]) {
 
                 const ladder =
-                    document.createElement("span");
+                    document.createElement(
+                        "span"
+                    );
+
 
                 ladder.classList.add(
                     "ladder"
                 );
 
+
                 ladder.textContent =
                     "🪜";
+
 
                 cell.appendChild(
                     ladder
@@ -462,24 +598,29 @@ function createBoard() {
             }
 
 
-            /* محل مهره‌ها */
-
             const pieceContainer =
-                document.createElement("div");
+                document.createElement(
+                    "div"
+                );
+
 
             pieceContainer.classList.add(
                 "piece-container"
             );
 
+
             pieceContainer.id =
                 `pieces-${number}`;
+
 
             cell.appendChild(
                 pieceContainer
             );
 
 
-            board.appendChild(cell);
+            board.appendChild(
+                cell
+            );
 
         });
 
@@ -492,16 +633,19 @@ function createBoard() {
 
 
 /* =========================================================
-   UPDATE PIECES
+   PIECES
 ========================================================= */
 
 function updatePieces() {
 
     document
-        .querySelectorAll(".piece-container")
+        .querySelectorAll(
+            ".piece-container"
+        )
         .forEach(container => {
 
-            container.innerHTML = "";
+            container.innerHTML =
+                "";
 
         });
 
@@ -518,7 +662,9 @@ function updatePieces() {
 
 
         const piece =
-            document.createElement("div");
+            document.createElement(
+                "div"
+            );
 
 
         piece.classList.add(
@@ -541,7 +687,7 @@ function updatePieces() {
 
 
 /* =========================================================
-   UPDATE CURRENT PLAYER
+   CURRENT PLAYER
 ========================================================= */
 
 function updateCurrentPlayer() {
@@ -557,16 +703,18 @@ function updateCurrentPlayer() {
     const colors = {
 
         red: "#ef4444",
+
         blue: "#3b82f6",
+
         green: "#22c55e",
+
         yellow: "#ca8a04"
 
     };
 
 
     currentPlayerText.style.color =
-        colors[player.color] ||
-        "#4f46e5";
+        colors[player.color];
 
 
     document
@@ -587,7 +735,9 @@ function updateCurrentPlayer() {
 
 
     if (
-        playerElements[currentPlayerIndex]
+        playerElements[
+            currentPlayerIndex
+        ]
     ) {
 
         playerElements[
@@ -602,6 +752,26 @@ function updateCurrentPlayer() {
 
 
 /* =========================================================
+   WAIT
+========================================================= */
+
+function wait(milliseconds) {
+
+    return new Promise(
+        resolve => {
+
+            setTimeout(
+                resolve,
+                milliseconds
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================================================
    ROLL DICE
 ========================================================= */
 
@@ -610,14 +780,11 @@ async function rollDice() {
     if (isRolling) return;
 
 
-    /*
-       فعال کردن صدا
-    */
-
-    startAudio();
+    initAudio();
 
 
     isRolling = true;
+
 
     rollDiceButton.disabled =
         true;
@@ -634,16 +801,8 @@ async function rollDice() {
         `${player.name} در حال انداختن تاس است...`;
 
 
-    /*
-       صدای تاس
-    */
-
     playDiceSound();
 
-
-    /*
-       انیمیشن تاس
-    */
 
     for (
         let i = 0;
@@ -665,10 +824,6 @@ async function rollDice() {
 
     }
 
-
-    /*
-       عدد واقعی تاس
-    */
 
     const dice =
         Math.floor(
@@ -692,10 +847,6 @@ async function rollDice() {
 
     isRolling = false;
 
-
-    /*
-       اگر برنده نشده باشد
-    */
 
     if (!player.winner) {
 
@@ -736,9 +887,6 @@ async function movePlayer(
     dice
 ) {
 
-    /*
-       بررسی عبور از 100
-    */
 
     if (
         player.position + dice >
@@ -755,10 +903,6 @@ async function movePlayer(
 
     }
 
-
-    /*
-       حرکت خانه به خانه
-    */
 
     for (
         let i = 0;
@@ -780,9 +924,7 @@ async function movePlayer(
     }
 
 
-    /*
-       بررسی مار
-    */
+    /* مار */
 
     if (
         snakes[player.position]
@@ -818,9 +960,7 @@ async function movePlayer(
     }
 
 
-    /*
-       بررسی پله
-    */
+    /* پله */
 
     if (
         ladders[player.position]
@@ -856,9 +996,7 @@ async function movePlayer(
     }
 
 
-    /*
-       بررسی برنده
-    */
+    /* برنده */
 
     if (
         player.position === 100
@@ -894,13 +1032,18 @@ async function movePlayer(
    WINNER EFFECT
 ========================================================= */
 
-function showWinnerEffect(player) {
+function showWinnerEffect(
+    player
+) {
 
     const colors = {
 
         red: "#ef4444",
+
         blue: "#3b82f6",
+
         green: "#22c55e",
+
         yellow: "#facc15"
 
     };
@@ -921,27 +1064,7 @@ function showWinnerEffect(player) {
 
 
 /* =========================================================
-   WAIT FUNCTION
-========================================================= */
-
-function wait(milliseconds) {
-
-    return new Promise(
-        resolve => {
-
-            setTimeout(
-                resolve,
-                milliseconds
-            );
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   NEW GAME
+   RESET GAME
 ========================================================= */
 
 function resetGame() {
@@ -985,7 +1108,92 @@ function resetGame() {
 
 
 /* =========================================================
-   EVENTS
+   START BUTTON
+========================================================= */
+
+startGameButton.addEventListener(
+    "click",
+    () => {
+
+        /*
+           این کلیک اجازه پخش صدا
+           را از مرورگر می‌گیرد.
+        */
+
+        initAudio();
+
+
+        /*
+           صدای شروع
+        */
+
+        playStartSound();
+
+
+        /*
+           بستن صفحه شروع
+        */
+
+        startScreen.style.opacity =
+            "0";
+
+
+        startScreen.style.pointerEvents =
+            "none";
+
+
+        setTimeout(() => {
+
+            startScreen.style.display =
+                "none";
+
+        }, 350);
+
+
+        gameMessage.textContent =
+            "بازی شروع شد! 🎲";
+
+
+    }
+);
+
+
+/* =========================================================
+   SOUND BUTTON
+========================================================= */
+
+soundButton.addEventListener(
+    "click",
+    () => {
+
+        initAudio();
+
+
+        soundEnabled =
+            !soundEnabled;
+
+
+        if (soundEnabled) {
+
+            soundButton.textContent =
+                "🔊 صدا روشن";
+
+
+            playStartSound();
+
+        } else {
+
+            soundButton.textContent =
+                "🔇 صدا خاموش";
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   DICE BUTTON
 ========================================================= */
 
 rollDiceButton.addEventListener(
@@ -995,7 +1203,7 @@ rollDiceButton.addEventListener(
 
 
 /* =========================================================
-   START GAME
+   START
 ========================================================= */
 
 createBoard();
